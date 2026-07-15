@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Model Performance — AnimalVision AI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Model Performance</h1>
+    <button id="retrain-btn" class="btn btn-primary">Retrain Model</button>
+</div>
+
+<div id="retrain-status" class="alert alert-info" style="display:none;"></div>
+
+{% if not has_results %}
+<div class="empty-state">
+    <span class="empty-icon">📊</span>
+    <p>No evaluation results yet. Run <code>python -m model.train</code> then
+       <code>python -m model.evaluate</code> to generate them.</p>
+</div>
+{% else %}
+
+<section class="metrics-summary">
+    <div class="metric-tile">
+        <span class="metric-value">{{ (metrics.accuracy * 100) | round(2) }}%</span>
+        <span class="metric-label">Accuracy</span>
+    </div>
+    <div class="metric-tile">
+        <span class="metric-value">{{ (metrics.precision_weighted * 100) | round(2) }}%</span>
+        <span class="metric-label">Precision</span>
+    </div>
+    <div class="metric-tile">
+        <span class="metric-value">{{ (metrics.recall_weighted * 100) | round(2) }}%</span>
+        <span class="metric-label">Recall</span>
+    </div>
+    <div class="metric-tile">
+        <span class="metric-value">{{ (metrics.f1_weighted * 100) | round(2) }}%</span>
+        <span class="metric-label">F1 Score</span>
+    </div>
+</section>
+
+<section class="results-grid">
+    <div class="result-image-card">
+        <h3>Training vs Validation Accuracy</h3>
+        <img src="{{ url_for('static', filename='results/accuracy_plot.png') }}" alt="Accuracy plot">
+    </div>
+    <div class="result-image-card">
+        <h3>Training vs Validation Loss</h3>
+        <img src="{{ url_for('static', filename='results/loss_plot.png') }}" alt="Loss plot">
+    </div>
+    <div class="result-image-card result-image-wide">
+        <h3>Confusion Matrix (Test Set)</h3>
+        <img src="{{ url_for('static', filename='results/confusion_matrix.png') }}" alt="Confusion matrix">
+    </div>
+</section>
+
+<section class="per-class-table-section">
+    <h2>Per-Class Metrics</h2>
+    <table class="per-class-table">
+        <thead>
+            <tr>
+                <th>Class</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1 Score</th>
+                <th>Support</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for class_name, stats in metrics.per_class.items() %}
+            <tr>
+                <td>{{ class_name | capitalize }}</td>
+                <td>{{ (stats.precision * 100) | round(1) }}%</td>
+                <td>{{ (stats.recall * 100) | round(1) }}%</td>
+                <td>{{ (stats.f1_score * 100) | round(1) }}%</td>
+                <td>{{ stats.support | int }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+{% endif %}
+{% endblock %}

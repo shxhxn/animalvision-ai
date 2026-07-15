@@ -1,0 +1,17 @@
+animalvision-ai/
+├── README.md, requirements.txt, .gitignore, config.py
+├── model/                 # everything about training the CNN
+│   ├── data_loader.py      # loads Animals-10, splits train/val/test
+│   ├── model_architecture.py  # the CNN itself
+│   ├── train.py            # training loop, saves model + history + plots
+│   ├── evaluate.py         # confusion matrix, precision/recall/F1
+│   └── saved/               # trained model + class_names.json (gitignored)
+├── app/                    # the Flask web app
+│   ├── __init__.py         # app factory
+│   ├── routes.py           # /, /predict, /history, /about, /metrics
+│   ├── utils/               # image preprocessing, model loading, history DB
+│   ├── templates/           # HTML (base, index, history, about, metrics)
+│   └── static/              # CSS, JS, uploaded images
+├── run.py                  # entry point
+├── tests/                  # unit tests
+└── screenshots/            # for the README

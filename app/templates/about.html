@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}About — AnimalVision AI{% endblock %}
+
+{% block content %}
+<div class="prose-page">
+    <h1>How AnimalVision AI Works</h1>
+
+    <p>AnimalVision AI classifies animal photos using a <strong>Convolutional Neural Network (CNN)</strong>
+       trained entirely from scratch — no pretrained weights, no transfer learning. Every parameter in the
+       model learned directly from the Animals-10 dataset.</p>
+
+    <h2>What is a CNN?</h2>
+    <p>A CNN is a type of neural network built specifically for image data. Instead of looking at every pixel
+       independently, it slides small filters across the image to detect patterns: edges, textures, shapes,
+       and eventually whole objects like "ear" or "fur texture." Early layers learn simple patterns; deeper
+       layers combine those into increasingly complex, animal-specific features.</p>
+
+    <h2>The architecture</h2>
+    <ol>
+        <li><strong>Rescaling</strong> — raw pixel values (0&ndash;255) are normalized to 0&ndash;1, which
+            helps the network train more stably.</li>
+        <li><strong>Data augmentation</strong> — during training, images are randomly flipped, rotated, and
+            zoomed. This exposes the model to more variety than the raw dataset alone contains, reducing
+            overfitting.</li>
+        <li><strong>Four convolutional blocks</strong> — each block has two convolutional layers followed by
+            batch normalization, a ReLU activation, max-pooling (which halves the image resolution), and
+            dropout. Filter counts double at each block (32 &rarr; 64 &rarr; 128 &rarr; 256), so the network
+            learns more detailed features as the spatial resolution shrinks.</li>
+        <li><strong>Global average pooling</strong> — condenses each feature map down to a single number,
+            keeping the parameter count low and reducing overfitting compared to a traditional flatten +
+            dense approach.</li>
+        <li><strong>Dense output layer</strong> — a final softmax layer outputs a probability for each animal
+            class, which is what powers the confidence percentages you see on the Predict page.</li>
+    </ol>
+
+    <h2>How training works</h2>
+    <p>The model sees the training images repeatedly (each full pass is called an "epoch"), adjusting its
+       internal weights after each batch to reduce its prediction error. A held-out validation set — images
+       the model never trains on — is checked after every epoch to make sure it's actually generalizing, not
+       just memorizing. Training automatically stops early if validation performance stops improving, and the
+       <em>best</em> version of the model (by validation accuracy) is the one that gets saved, not
+       necessarily the last one.</p>
+
+    <h2>How predictions work</h2>
+    <p>When you upload a photo, it's resized to 128&times;128 pixels and fed through the trained network. The
+       output is a probability distribution across all animal classes — the "Top 5 Predictions" chart on the
+       Predict page shows the five highest, so you can see not just the model's best guess but how confident
+       it was relative to the alternatives.</p>
+
+    <p>Curious how well the model actually performs? Check the
+       <a href="{{ url_for('main.metrics') }}">Model Performance</a> page for accuracy/loss curves, a
+       confusion matrix, and precision/recall/F1 scores measured on a held-out test set.</p>
+</div>
+{% endblock %}
